@@ -88,7 +88,7 @@ char*** readData(char* fp_name)
 		count++;
 	}
 
-	char*** registers = malloc(sizeof(char**)*(linesNumber));
+	char*** registers = malloc(sizeof(char**)*(linesNumber+1));
 	char** reg = NULL;
     count = 1;
     char* linesNumberStr = malloc(sizeof(char)*5);
@@ -96,7 +96,7 @@ char*** readData(char* fp_name)
     char** linesNumberStrArray = malloc(sizeof(char*)*1);
     linesNumberStrArray[0] = linesNumberStr;
     registers[0] = linesNumberStrArray;
-	for (int i = 0; i < linesNumber-1; i++)
+	for (int i = 0; i < linesNumber; i++)
 	{
 		temp2 = malloc(sizeof(char)*(size+1));
 		strcpy(temp2,lines[i]);
@@ -124,81 +124,91 @@ char*** readData(char* fp_name)
     return registers;
 }
 
-int main(int argc, char** argv)
+char* populateControlLinesMemory(char* fp_name)
 {
-    char* regdst,jump,branch,memread,memtoreg,aluop,memwrite,alusrc,regwrite;
-    int $sp,$at,$zero,$v0,$v1,$a0,$a1,$a2,$a3,$t0,$t1,$t2,$t3,$t4,$t5,$t6,$t7,$t8,$t9,$s0,$s1,$s2,$s3,$s4,$s5,$s6,$s7,$gp,$fp,$ra;
-    char*** instructions = NULL;
     char*** controlLines = NULL;
-    int * virtualMemory = NULL;
-	instructions = readData("entrada1.txt");
-    controlLines = readData("entrada2.txt");
-    virtualMemory = malloc(sizeof(int)*1024);
-
-    for (int i = 0; i < atoi(controlLines[0][0]); i++)
+    controlLines = readData(fp_name);
+    char* controlLinesMemory = malloc(sizeof(char)*9);
+    for (int i = 1; i < atoi(controlLines[0][0])+1; i++)
     {
         if (strcmp(controlLines[i][0],"Regdst") == 0 || strcmp(controlLines[i][0],"regdst") == 0)
         {
-            regdst = malloc(sizeof(char)*3);
-            strcpy(regdst,controlLines[i][1]);
+            controlLinesMemory[0] = controlLines[i][1][0];
         }
 
         else if (strcmp(controlLines[i][0],"Jump") == 0 || strcmp(controlLines[i][0],"jump") == 0)
         {
-            jump = malloc(sizeof(char)*3);
-            printf("%d\n",jump);
-            printf("%s",controlLines[i][1]);
-
-            strcpy(jump,controlLines[i][1]);
-            printf("%s\n",jump);
+            controlLinesMemory[1] = controlLines[i][1][0];
         }
 
         else if (strcmp(controlLines[i][0],"Branch") == 0 || strcmp(controlLines[i][0],"branch") == 0)
         {
-            branch = malloc(sizeof(char)*2);
-            strcpy(branch,controlLines[i][1]);
+            controlLinesMemory[2] =controlLines[i][1][0];
+
         }
 
         else if (strcmp(controlLines[i][0],"Memread") == 0 || strcmp(controlLines[i][0],"memread") == 0)
         {
-            memread = malloc(sizeof(char)*2);
-            strcpy(memread,controlLines[i][1]);
+            controlLinesMemory[3] =controlLines[i][1][0];
+
         }
 
         else if (strcmp(controlLines[i][0],"Memtoreg") == 0 || strcmp(controlLines[i][0],"memtoreg") == 0)
         {
-            memtoreg = malloc(sizeof(char)*2);
-            strcpy(memtoreg,controlLines[i][1]);
+            controlLinesMemory[4] =controlLines[i][1][0];
+
         }
 
         else if (strcmp(controlLines[i][0],"Aluop") == 0 || strcmp(controlLines[i][0],"aluop") == 0)
         {
-            aluop = malloc(sizeof(char)*2);
-            strcpy(aluop,controlLines[i][1]);
+            controlLinesMemory[5] =controlLines[i][1][0];
+
         }
 
         else if (strcmp(controlLines[i][0],"Memwrite") == 0 || strcmp(controlLines[i][0],"memwrite") == 0)
         {
-            memwrite = malloc(sizeof(char)*2);
-            strcpy(memwrite,controlLines[i][1]);
+            controlLinesMemory[6] =controlLines[i][1][0];
+
         }
 
         else if (strcmp(controlLines[i][0],"Alusrc") == 0 || strcmp(controlLines[i][0],"alusrc") == 0)
         {
-            alusrc = malloc(sizeof(char)*2);
-            strcpy(alusrc,controlLines[i][1]);
+            controlLinesMemory[7] =controlLines[i][1][0];
         }
 
         else if (strcmp(controlLines[i][0],"Regwrite") == 0 || strcmp(controlLines[i][0],"regwrite") == 0)
         {
-            regwrite = malloc(sizeof(char)*2);
-            strcpy(regwrite,controlLines[i][1]);
+            controlLinesMemory[8] = controlLines[i][1][0];
         }
     }
 
-    printf("%s\n","holaaa" );
-    printf("%s\n",regwrite);
-    printf("%s\n",alusrc);
+    return controlLinesMemory;
+}
+
+int main(int argc, char** argv)
+{
+    char* controlLinesMemory;
+    //regdst,jump,branch,memread,memtoreg,aluop,memwrite,alusrc,regwrite;
+    int* registersMemory;
+    //$sp,$at,$zero,$v0,$v1,$a0,$a1,$a2,$a3,$t0,$t1,$t2,$t3,$t4,$t5,$t6,$t7,$t8,$t9,$s0,$s1,$s2,$s3,$s4,$s5,$s6,$s7,$gp,$fp,$ra;
+    char*** instructions = NULL;
+    int* virtualMemory = NULL;
+	instructions = readData("entrada1.txt");
+    virtualMemory = calloc(1025,sizeof(int));
+    registersMemory = calloc(30,sizeof(int));
+    controlLinesMemory = populateControlLinesMemory("entrada2.txt");
+
+    for (int i = 1; i < atoi(instructions[0][0]); i++)
+    {
+        if (strcmp(instructions[i][0],'j') == 0 || strcmp(instructions[i][0],'J') == 0)
+        {
+            if (controlLinesMemory[1] == 'x')
+            {
+                
+            }
+        }
+        printf("%s\n",instructions[i][0]);
+    }
 
     return 0;
 

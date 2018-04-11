@@ -1,4 +1,4 @@
-Jump end
+j end
     subi $t2, $zero, 2
     subi $t3, $zero, 3
     sub $t1, $t2, $t3
