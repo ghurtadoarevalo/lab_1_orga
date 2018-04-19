@@ -4,3 +4,5 @@ j end
     sub $t1, $t2, $t3
     sub $t3, $t2, $t1
     end:
+    addi $t4, $zero, 2
+    mul $t4, $t4, $t2

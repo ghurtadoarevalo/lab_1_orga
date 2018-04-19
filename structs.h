@@ -3,10 +3,10 @@
 
 //Estructura que se utiliza para almacenar las stopwords
 typedef struct {
-	char value;
+	int value;
 	char* name;
 } reg;
 
-
+typedef enum { false, true } bool;
 
 #endif

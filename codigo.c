@@ -5,7 +5,7 @@
 #include <time.h>
 #include "functions.h"
 
-#define REGISTERSNUMBER 26
+#define REGISTERSNUMBER 31
 
 void removeSpaces(char *str)
 {
@@ -192,37 +192,163 @@ char* populateControlLinesMemory(char* fp_name)
     return controlLinesMemory;
 }
 
-void writeInstructions(char ** instruction, char* error)
+void writeInstructions(char ** instruction, char* error, bool* created_1)
 {
-    FILE *fp;
-    fp=fopen("salida_1.txt", "a");
-    if(fp == NULL)
+    if (*created_1 == false)
     {
-        fputs ("File error",stderr);
-        exit (1);
-    }
-
-    if (strcmp(error,"") == 0)
-    {
-        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+        FILE *fp;
+        fp=fopen("salida_1.txt", "w");
+        if(fp == NULL)
         {
-            fprintf(fp,"%s %s\n", instruction[0], instruction[1]);
+            printf("Error al crear el archivo de salida 1\n");
+            exit (1);
+        }
+
+        if (strcmp(error,"") == 0)
+        {
+            if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+            {
+                fprintf(fp,"%s %s\n", instruction[0], instruction[1]);
+            }
+
+            if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
+                strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
+                strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0  )
+
+            {
+                fprintf(fp,"%s %s %s %s\n", instruction[0], instruction[1], instruction[2], instruction[3]);
+            }
+
+            *created_1 = true;
+            fclose(fp);
+
+        }
+
+        else
+        {
+            printf("%s\n",error);
+            fprintf(fp, "%s\n", error);
+            fclose(fp);
+            exit(1);
         }
     }
 
     else
     {
-        printf("%s\n",error);
-        fprintf(fp, "%s\n", error);
-        exit(1);
+
+        FILE *fp;
+        fp=fopen("salida_1.txt", "a");
+        if(fp == NULL)
+        {
+            printf("Error al modoficar el archivo de salida 1\n");
+            exit (1);
+        }
+
+        if (strcmp(error,"") == 0)
+        {
+            if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+            {
+                fprintf(fp,"%s %s\n", instruction[0], instruction[1]);
+            }
+
+            if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
+                strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
+                strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0  )
+            {
+                fprintf(fp,"%s %s %s %s\n", instruction[0], instruction[1], instruction[2], instruction[3]);
+            }
+
+            fclose(fp);
+        }
+
+        else
+        {
+            printf("%s\n",error);
+            fprintf(fp, "%s\n", error);
+            fclose(fp);
+            exit(1);
+        }
+    }
+}
+
+void writeRegisters(reg ** registersMemory, char ** instruction, bool* created_2)
+{
+    if (*created_2 == false)
+    {
+        FILE *fp;
+        fp=fopen("salida_2.csv", "w");
+
+        if(fp == NULL)
+        {
+            printf("Error al crear el archivo de salida 2\n");
+            exit(1);
+        }
+
+        fprintf(fp, "Instrucciones, $sp, $at, $fp, $v0, $v1, $a0, $a1, $a2, $a3, $t0, $t1, $t2, $t3, $t4, $t5, $t6, $t7, $t8, $t9, $s0, $s1, $s2, $s3, $s4, $s5, $s6, $s7, $k0, $k1,$gp, $zero\n");
+
+
+        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+        {
+            fprintf(fp, "%s %s,",instruction[0],instruction[1]);
+            for (size_t i = 0; i < REGISTERSNUMBER; i++)
+            {
+                fprintf(fp, "%d,", registersMemory[i]->value);
+            }
+            fprintf(fp, "\n");
+        }
+
+        if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
+            strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
+            strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0  )
+        {
+            fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
+            for (size_t i = 0; i < REGISTERSNUMBER; i++)
+            {
+                fprintf(fp, "%d,", registersMemory[i]->value);
+            }
+            fprintf(fp, "\n");
+        }
+        *created_2 = true;
+        fclose(fp);
+
     }
 
-    fclose(fp);
+    else
+    {
+        FILE *fp;
+        fp=fopen("salida_2.csv", "a");
+
+        if(fp == NULL)
+        {
+            printf("Error al crear el archivo de salida 2\n");
+            exit(1);
+        }
+
+
+        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
+        {
+            //Do nothing;
+        }
+
+        if (strcmp(instruction[0],"subi") == 0 || strcmp(instruction[0],"sub") == 0 ||
+            strcmp(instruction[0],"add") == 0  || strcmp(instruction[0],"addi") == 0 ||
+            strcmp(instruction[0],"mul") == 0  || strcmp(instruction[0],"div") == 0  )
+        {
+            fprintf(fp, "%s %s %s %s,",instruction[0],instruction[1],instruction[2],instruction[3]);
+            for (size_t i = 0; i < REGISTERSNUMBER; i++)
+            {
+                fprintf(fp, "%d,", registersMemory[i]->value);
+            }
+            fprintf(fp, "\n");
+        }
+
+        fclose(fp);
+    }
 }
 
 reg** populateRegisters()
 {
-    reg ** registers = malloc(sizeof(reg*)*27);
+    reg ** registers = malloc(sizeof(reg*)*REGISTERSNUMBER);
 
     reg * $sp = malloc(sizeof(reg));
     $sp->value = 0;
@@ -236,11 +362,11 @@ reg** populateRegisters()
     strcpy($at->name,"$at\0");
     registers[1] = $at;
 
-    reg * $zero = malloc(sizeof(reg));
-    $zero->value = 0;
-    $zero->name = malloc(sizeof(char)*7);
-    strcpy($zero->name,"$zero\0");
-    registers[2] = $zero;
+    reg * $fp = malloc(sizeof(reg));
+    $fp->value = 0;
+    $fp->name = malloc(sizeof(char)*7);
+    strcpy($fp->name,"$fp\0");
+    registers[2] = $fp;
 
     reg * $v0 = malloc(sizeof(reg));
     $v0->value = 0;
@@ -386,38 +512,40 @@ reg** populateRegisters()
     strcpy($s7->name,"$s7\0");
     registers[26] = $s7;
 
+    reg * $k0 = malloc(sizeof(reg));
+    $k0->value = 0;
+    $k0->name = malloc(sizeof(char)*7);
+    strcpy($k0->name,"$k0\0");
+    registers[27] = $k0;
+
+    reg * $k1 = malloc(sizeof(reg));
+    $k1->value = 0;
+    $k1->name = malloc(sizeof(char)*7);
+    strcpy($k1->name,"$k1\0");
+    registers[28] = $k1;
+
+    reg * $gp = malloc(sizeof(reg));
+    $gp->value = 0;
+    $gp->name = malloc(sizeof(char)*7);
+    strcpy($gp->name,"$gp\0");
+    registers[29] = $gp;
+
+    reg * $zero = malloc(sizeof(reg));
+    $zero->value = 0;
+    $zero->name = malloc(sizeof(char)*7);
+    strcpy($zero->name,"$zero\0");
+    registers[30] = $zero;
+
     return registers;
 
 }
 
-void writeRegisters(reg ** registersMemory, char ** instruction)
-{
-    FILE *fp;
-    fp=fopen("salida_2.txt", "r");
-    if(fp == NULL)
-    {
-        fp=fopen("salida_2.txt", "a");
-        fprintf(fp, "Instrucciones         $sp $at $zero $v0 $v1 $a0 $a1 $a2 $a3 $t0 $t1 $t2 $t3 $t4 $t5 $t6 $t7 $t8 $t9 $s0 $s1 $s2 $s3 $s4 $s5 $s6 $s7");
-    }
 
-    else
-    {
-        fclose(fp);
-        fp=fopen("salida_2.txt", "a");
-
-        if (strcmp(instruction[0],"j") == 0 || strcmp(instruction[0],"J") == 0 )
-        {
-            //Do nothing;
-        }
-
-
-    }
-
-    fclose(fp);
-}
 
 int main(int argc, char** argv)
 {
+    bool created_1 = false;
+    bool created_2 = false;
     char* controlLinesMemory;
     //regdst,jump,branch,memread,memtoreg,aluop,memwrite,alusrc,regwrite;
     reg ** registersMemory;
@@ -454,11 +582,11 @@ int main(int argc, char** argv)
                 {
                     strcpy(error,"No existe la etiqueta ");
                     strcat(error,instructions[i][1]);
-                    writeInstructions(instructions[i], error);
-                    writeRegisters(registersMemory,instructions[i]);
+                    writeInstructions(instructions[i], error,&created_1);
+                    writeRegisters(registersMemory,instructions[i], &created_2);
                 }
-                writeInstructions(instructions[i], error);
-                writeRegisters(registersMemory,instructions[i]);
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
                 i = j;
             }
 
@@ -468,57 +596,376 @@ int main(int argc, char** argv)
             }
         }
 
-        else if (strcmp(instructions[i][0],"subi") == 0)
+        else if (strcmp(instructions[i][0],"sub") == 0 || strcmp(instructions[i][0],"subi") == 0)
         {
             int variable_1 = 0;
             int variable_2 = 0;
             int result = 0;
-            printf("%d\n",registersMemory[11]->value);
             int j;
+
+            //Se recorren la memoria de registros
             for (j = 0; j < REGISTERSNUMBER; j++)
             {
+                //Se verifica si la segunda variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
                 if (strcmp(instructions[i][2],registersMemory[j]->name) == 0)
                 {
+                    variable_1 = registersMemory[j]->value;
                     break;
                 }
             }
+
+            //En caso de que no exista la segunda variable en memoria, error.
             if (j == REGISTERSNUMBER)
             {
                 strcpy(error,"No existe la variable ");
                 strcat(error,instructions[i][2]);
-                writeInstructions(instructions[i], error);
-                writeRegisters(registersMemory,instructions[i]);
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
             }
 
-            variable_1 = registersMemory[j]->value;
-            variable_2 = atoi(instructions[i][3]);
-            result = variable_1 - variable_2;
-
-            for (int j = 0; j < REGISTERSNUMBER; j++)
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
             {
-                //printf("%d, j: %d\n",result,j);
-                // printf("%d\n", strcmp(instructions[i][1],registersMemory[j]->name));
-                // printf("%s\n",instructions[i][1]);
-                // printf("%s\n",registersMemory[j]->name);
-                 printf("%d\n",j );
-                // // printf("%s\n\n","/////////////////////END" );
-                printf("%s\n", instructions[i][1]);
-                printf("%s\n", registersMemory[j]->name );
-                 printf("%s\n\n","/////////////////////END" );
-
-                if (strcmp(instructions[i][1],registersMemory[j]->name) == 0)
+                //Se verifica si la tercera variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][3],registersMemory[j]->name) == 0)
                 {
-                    //printf("%d\n",result);
-                    registersMemory[j] = result;
+                    variable_2 = registersMemory[j]->value;
                     break;
                 }
             }
 
-            writeInstructions(instructions[i], error);
-            writeRegisters(registersMemory,instructions[i]);
+            //En caso de que no exista la tercera variable en memoria
+            if (j == REGISTERSNUMBER)
+            {
+                //Si la instrucción es subi, entonces se toma el número de la instrucción
+                if (strcmp(instructions[i][0],"subi") == 0)
+                {
+                    variable_2 = atoi(instructions[i][3]);
+                }
+
+                //Si es sub, error.
+                else
+                {
+                    strcpy(error,"No existe la variable ");
+                    strcat(error,instructions[i][3]);
+                    writeInstructions(instructions[i], error,&created_1);
+                    writeRegisters(registersMemory,instructions[i], &created_2);
+                }
+            }
+
+            //Se realiza la operación
+            result = variable_1 - variable_2;
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la primera variable de la instrucción existe
+                //En caso de hacerlo, guarda el resultado en memoria
+                if (strcmp(instructions[i][1],registersMemory[j]->name) == 0)
+                {
+                    registersMemory[j]->value = result;
+                    break;
+                }
+            }
+
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][1]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            writeInstructions(instructions[i], error,&created_1);
+            writeRegisters(registersMemory,instructions[i], &created_2);
         }
-        //printf("%d\n",i );
-        //printf("%s\n", instructions[i][0]);
+
+        else if (strcmp(instructions[i][0],"add") == 0 || strcmp(instructions[i][0],"addi") == 0)
+        {
+            int variable_1 = 0;
+            int variable_2 = 0;
+            int result = 0;
+            int j;
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la segunda variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][2],registersMemory[j]->name) == 0)
+                {
+                    variable_1 = registersMemory[j]->value;
+                    break;
+                }
+            }
+
+            //En caso de que no exista la segunda variable en memoria, error.
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][2]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la tercera variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][3],registersMemory[j]->name) == 0)
+                {
+                    variable_2 = registersMemory[j]->value;
+                    break;
+                }
+            }
+
+            //En caso de que no exista la tercera variable en memoria
+            if (j == REGISTERSNUMBER)
+            {
+                //Si la instrucción es addi, entonces se toma el número de la instrucción
+                if (strcmp(instructions[i][0],"addi") == 0)
+                {
+                    variable_2 = atoi(instructions[i][3]);
+                }
+
+                //Si es sub, error.
+                else
+                {
+                    strcpy(error,"No existe la variable ");
+                    strcat(error,instructions[i][3]);
+                    strcat(error," en instrucción ");
+                    strcat(error,instructions[i][0] );
+                    writeInstructions(instructions[i], error,&created_1);
+                    writeRegisters(registersMemory,instructions[i], &created_2);
+                }
+            }
+
+            //Se realiza la operación
+            result = variable_1 + variable_2;
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la primera variable de la instrucción existe
+                //En caso de hacerlo, guarda el resultado en memoria
+                if (strcmp(instructions[i][1],registersMemory[j]->name) == 0)
+                {
+                    registersMemory[j]->value = result;
+                    break;
+                }
+            }
+
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][1]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            writeInstructions(instructions[i], error,&created_1);
+            writeRegisters(registersMemory,instructions[i], &created_2);
+        }
+
+        else if (strcmp(instructions[i][0],"mul") == 0)
+        {
+            int variable_1 = 0;
+            int variable_2 = 0;
+            int result = 0;
+            int j;
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la segunda variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][2],registersMemory[j]->name) == 0)
+                {
+                    variable_1 = registersMemory[j]->value;
+                    break;
+                }
+            }
+
+            //En caso de que no exista la segunda variable en memoria, error.
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][2]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la tercera variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][3],registersMemory[j]->name) == 0)
+                {
+                    variable_2 = registersMemory[j]->value;
+                    break;
+                }
+            }
+
+            //En caso de que no exista la tercera variable en memoria
+            if (j == REGISTERSNUMBER)
+            {
+                //Si la instrucción es addi, entonces se toma el número de la instrucción
+                if (strcmp(instructions[i][0],"addi") == 0)
+                {
+                    variable_2 = atoi(instructions[i][3]);
+                }
+
+                //Si es sub, error.
+                else
+                {
+                    strcpy(error,"No existe la variable ");
+                    strcat(error,instructions[i][3]);
+                    strcat(error," en instrucción ");
+                    strcat(error,instructions[i][0] );
+                    writeInstructions(instructions[i], error,&created_1);
+                    writeRegisters(registersMemory,instructions[i], &created_2);
+                }
+            }
+
+            //Se realiza la operación
+            result = variable_1 * variable_2;
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la primera variable de la instrucción existe
+                //En caso de hacerlo, guarda el resultado en memoria
+                if (strcmp(instructions[i][1],registersMemory[j]->name) == 0)
+                {
+                    registersMemory[j]->value = result;
+                    break;
+                }
+            }
+
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][1]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            writeInstructions(instructions[i], error,&created_1);
+            writeRegisters(registersMemory,instructions[i], &created_2);
+        }
+
+        else if (strcmp(instructions[i][0],"div") == 0)
+        {
+            int variable_1 = 0;
+            int variable_2 = 0;
+            int result = 0;
+            int j;
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la segunda variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][2],registersMemory[j]->name) == 0)
+                {
+                    variable_1 = registersMemory[j]->value;
+                    break;
+                }
+            }
+
+            //En caso de que no exista la segunda variable en memoria, error.
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][2]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la tercera variable de la instrucción existe
+                //En caso de hacerlo, se toma su valor de memoria
+                if (strcmp(instructions[i][3],registersMemory[j]->name) == 0)
+                {
+                    variable_2 = registersMemory[j]->value;
+                    break;
+                }
+            }
+
+            //En caso de que no exista la tercera variable en memoria
+            if (j == REGISTERSNUMBER)
+            {
+                //Si la instrucción es addi, entonces se toma el número de la instrucción
+                if (strcmp(instructions[i][0],"addi") == 0)
+                {
+                    variable_2 = atoi(instructions[i][3]);
+                }
+
+                //Si es sub, error.
+                else
+                {
+                    strcpy(error,"No existe la variable ");
+                    strcat(error,instructions[i][3]);
+                    strcat(error," en instrucción ");
+                    strcat(error,instructions[i][0] );
+                    writeInstructions(instructions[i], error,&created_1);
+                    writeRegisters(registersMemory,instructions[i], &created_2);
+                }
+            }
+
+            //Se realiza la operación
+
+            if (variable_2 == 0)
+            {
+                strcpy(error,"No se puede realizar división por 0 ");
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            result = variable_1 / variable_2;
+            //Se recorren la memoria de registros
+            for (j = 0; j < REGISTERSNUMBER; j++)
+            {
+                //Se verifica si la primera variable de la instrucción existe
+                //En caso de hacerlo, guarda el resultado en memoria
+                if (strcmp(instructions[i][1],registersMemory[j]->name) == 0)
+                {
+                    registersMemory[j]->value = result;
+                    break;
+                }
+            }
+
+            if (j == REGISTERSNUMBER)
+            {
+                strcpy(error,"No existe la variable ");
+                strcat(error,instructions[i][1]);
+                strcat(error," en instrucción ");
+                strcat(error,instructions[i][0] );
+                writeInstructions(instructions[i], error,&created_1);
+                writeRegisters(registersMemory,instructions[i], &created_2);
+            }
+
+            writeInstructions(instructions[i], error,&created_1);
+            writeRegisters(registersMemory,instructions[i], &created_2);
+        }
     }
 
     return 0;
