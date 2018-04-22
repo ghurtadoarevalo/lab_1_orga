@@ -1,9 +1,10 @@
-lw $t2, 10($sp)    
-subi $t2, $zero, 2
-    subi $t3, $zero, 3
-    beq $t2, $t3, end
-    subi $t2, $t2, 1
-    end:
-    mul $t4, $t3, $t2
-    sw $t4, 100($sp)
-    lw $t7, 0($sp)
+lw $t1, 0($sp)
+addi $t1, $t1, 3
+addi $t2, $zero, 3
+beq $t1, $t2, ZERO
+add $t1, $sp, $t1
+j END
+ZERO:
+sw $t1, 0($sp)
+lw $t6, 0($sp)
+END:
