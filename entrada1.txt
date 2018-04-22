@@ -5,3 +5,5 @@ subi $t2, $zero, 2
     subi $t2, $t2, 1
     end:
     mul $t4, $t3, $t2
+    sw $t4, 100($sp)
+    lw $t7, 0($sp)
