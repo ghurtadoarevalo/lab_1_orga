@@ -6,4 +6,4 @@ Memtoreg x
 Aluop x
 Memwrite x
 Alusrc x
-Regwrite x
+Regwrite 0

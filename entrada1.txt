@@ -6,5 +6,4 @@ add $t1, $sp, $t1
 j END
 ZERO:
 sw $t1, 0($sp)
-lw $t6, 0($sp)
 END:
